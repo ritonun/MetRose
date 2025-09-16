@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def plot_route(route_id, data):
+def plot_route(route_id, data, filepath):
     # Select trips for this route
     trips_for_route = data["trips"][data["trips"]["route_id"] == str(route_id)]
     if trips_for_route.empty:
@@ -61,7 +61,96 @@ def plot_route(route_id, data):
     plt.ylabel("Latitude")
     plt.title(title)
     plt.legend()
-    plt.savefig("doc/t1.png")
+    plt.savefig(filepath)
+
+def plot_routes(route_ids, data, filepath, colors=None):
+    """
+    Plot one or more routes from GTFS data.
+
+    Parameters
+    ----------
+    route_ids : list
+        List of route IDs to plot.
+    data : dict
+        Dictionary of GTFS DataFrames (routes, trips, stops, stop_times, shapes).
+    filepath : str
+        Where to save the figure.
+    colors : dict, optional
+        Mapping from route_id -> color (matplotlib color).
+        If None, defaults will be used.
+    """
+
+    plt.figure(figsize=(10, 7))
+
+    for i, route_id in enumerate(route_ids):
+        # Pick color
+        if colors and route_id in colors:
+            color = colors[route_id]
+        else:
+            # fallback color cycle
+            color = f"C{i}"
+
+        # Select trips for this route
+        trips_for_route = data["trips"][data["trips"]["route_id"] == str(route_id)]
+        if trips_for_route.empty:
+            print(f"No trips found for route {route_id}")
+            continue
+
+        # Use the first trip as an example
+        trip_id = trips_for_route.iloc[0]["trip_id"]
+        trip_stop_times = (
+            data["stop_times"][data["stop_times"]["trip_id"] == trip_id]
+            .sort_values("stop_sequence")
+        )
+        trip_stops = trip_stop_times.merge(data["stops"], on="stop_id")
+
+        # Plot shape if available
+        if "shapes" in data and "shape_id" in trips_for_route.columns:
+            shape_id = trips_for_route.iloc[0]["shape_id"]
+            shape_points = (
+                data["shapes"][data["shapes"]["shape_id"] == shape_id]
+                .sort_values("shape_pt_sequence")
+            )
+            if not shape_points.empty:
+                plt.plot(
+                    shape_points["shape_pt_lon"],
+                    shape_points["shape_pt_lat"],
+                    color=color,
+                    linewidth=2,
+                    label=f"Route {route_id} Shape"
+                )
+
+        # Plot stops
+        plt.scatter(
+            trip_stops["stop_lon"],
+            trip_stops["stop_lat"],
+            c=color,
+            s=40,
+            zorder=5,
+            label=f"Route {route_id} Stops"
+        )
+
+        # Annotate stops
+        for _, row in trip_stops.iterrows():
+            plt.text(row["stop_lon"], row["stop_lat"], row["stop_name"], fontsize=8)
+
+    # Title with route info
+    route_infos = data["routes"][data["routes"]["route_id"].isin(map(str, route_ids))]
+    if not route_infos.empty:
+        route_names = [
+            f"{r.get('route_short_name', rid)} ({rid})"
+            for rid, r in zip(route_infos["route_id"], route_infos.to_dict("records"))
+        ]
+        title = "Routes: " + ", ".join(route_names)
+    else:
+        title = "Routes: " + ", ".join(map(str, route_ids))
+
+    plt.xlabel("Longitude")
+    plt.ylabel("Latitude")
+    plt.title(title)
+    plt.legend()
+    plt.savefig(filepath)
+    plt.close()
 
 def load_data():
     path = "data/tisseo_gtfs_v2"
@@ -87,4 +176,13 @@ if __name__ == '__main__':
     print("data loaded")
 
     route_id = "line:68"   # tram T1
-    plot_route(route_id, data)
+    plot_route(route_id, data, "doc/t1.png")
+
+    plot_routes(
+        ["line:61", "line:69"],
+        data,
+        "doc/metro.png",
+        {
+            "line:61": "red",
+            "line:69": "blue"
+        })
