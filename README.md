@@ -1,6 +1,6 @@
 # MetRose
 
-## Ligne T1
+## Carte des lignes
 ![ligne T1](doc/t1.png)
 ![metro](doc/metro.png)
 
