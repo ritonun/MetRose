@@ -1,5 +1,8 @@
 # MetRose
 
+## Ligne T1
+![ligne T1](doc/t1.png)
+
 ## Install
 ### Ubuntu
 ```bash
