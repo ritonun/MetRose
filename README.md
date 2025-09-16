@@ -21,3 +21,10 @@ python -m venv .venv
 .venv\Scripts\Activate
 pip install -r requirements.txt
 ```
+
+## Info
+Pour download le dataset:
+```bash
+source .venv/bin/activate
+python3 src/api.py
+```
