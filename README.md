@@ -6,7 +6,7 @@
 ## Install
 ### Ubuntu
 ```bash
-git clone URL
+git clone https://github.com/ritonun/MetRose.git
 cd metrose
 python3 -m venv .venv
 source .venv/bin/activate
@@ -15,7 +15,7 @@ pip install -r requirements.txt
 
 ### Windows
 ```bash
-git clone URL
+git clone https://github.com/ritonun/MetRose.git
 cd metrose
 python -m venv .venv
 .venv\Scripts\Activate
