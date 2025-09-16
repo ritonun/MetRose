@@ -3,16 +3,21 @@
 import folium
 
 
-def create_map(line_coords, stations, train_positions=None, zoom_start=13):
+def create_map(lines_coords, all_stations, train_positions=None, zoom_start=13):
     """Create a folium map for visualisation"""
-    m = folium.Map(location=line_coords[0], zoom_start=zoom_start)
+    m = folium.Map(location=lines_coords[0][0], zoom_start=zoom_start)
 
     # Add metro line
-    folium.PolyLine(line_coords, color='blue', weight=5, opacity=0.7).add_to(m)
+    color = ["red", "blue"]
+    i = 0
+    for line_coords in lines_coords:
+        folium.PolyLine(line_coords, color=color[i], weight=5, opacity=0.7).add_to(m)
+        i += 1
 
     # Add stations
-    for s in stations:
-        folium.CircleMarker(location=s, radius=5, color='red', fill=True).add_to(m)
+    for stations in all_stations:
+        for s in stations:
+            folium.CircleMarker(location=s, radius=5, color='red', fill=True).add_to(m)
 
     # Add simulated trains
     if train_positions:
