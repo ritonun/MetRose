@@ -2,5 +2,5 @@ pandas==2.3.2
 requests==2.32.5
 matplotlib==3.10.6
 tqdm==4.67.1
-numpy-stl==3.2.0
-trimesh==4.8.1
+Flask==3.1.2
+folium==0.20.0
